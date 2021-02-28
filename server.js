@@ -66,14 +66,14 @@ gameSocket = io.on('connection', function(socket){
 
 	socket.on('click', function(data) {
 		console.log('clicked == ' + data.index );
-		// sockets.map( (s) => {
-		// 	if(socket !== s)
-		// 	{
-		// 		s.emit('other player turned', data);
-		// 		console.log(' === connected === ');
-		// 	}
-		// });
-		socket.broadcast.emit('other player turned', data);
+		sockets.map( (s) => {
+			if(socket !== s)
+			{
+				s.emit('other player turned', data);
+				console.log(' === connected === ');
+			}
+		});
+		//socket.broadcast.emit('other player turned', data);
 	})
 
     ////////////////////////////////////////////////////
