@@ -44,17 +44,24 @@ var rooms = {};
 
 
 const joinRoom = (socket, room) => {
-  room.sockets.push(socket);
+  rooms[room.id].sockets.push(socket);
   socket.join(room.id, () => {
     // store the room id in the socket for future use
     socket.roomId = room.id;
     console.log(socket.id, "Joined", room.id);
-    if(room.sockets.length == 1)
-      socket.emit("gameTurn", {turn: 1, playing: 0});
+   
+      
     if(room.sockets.length == 2)
-      socket.emit("gameTurn", {turn: 2, playing: 1});
+    {
+      rooms[room.id].sockets.map((s, index) => {
+          s.emit("gameTurn", {turn: index + 1, playing: 2});
+     
+        });
+      //socket.emit("gameTurn", {turn: 2, playing: 1});
+    }
   });
 };
+
 
 
 const leaveRooms = (socket) => {
@@ -308,11 +315,11 @@ gameSocket = io.on('connection', function(socket){
 
 
 
-  	for(var room in rooms)
+  	for(var id in rooms)
   	{
   		var element = {};
-  		element.id = room.id;
-  		element.name = room.name
+  		element.id = rooms[id].id;
+  		element.name = rooms[id].name;
   		res.push(element); 
   	}
 
@@ -379,9 +386,21 @@ gameSocket = io.on('connection', function(socket){
    // joinRoom(socket, room);
     socket.emit('createdRoom', room);
 
-var res = [];
-  sockets.map( (s) => {
-    
+    var res = [];
+      for(var id in rooms)
+              {
+                var element = {};
+                element.id = rooms[id].id;
+                element.name = rooms[id].name;
+                res.push(element); 
+              }
+
+      console.log(res);
+    socket.broadcast.emit('show room', {rooms: res});
+
+
+ /* sockets.map( (s) => {
+
       if(socket !== s)
       {
           for(var room in rooms)
@@ -395,7 +414,7 @@ var res = [];
                 console.log(res);
                 s.emit('show room', {rooms: res});
       }
-    });
+    });*/
 
 
     
@@ -405,6 +424,7 @@ var res = [];
 
     socket.on('joinRoom', (r) => {
 
+      console.log("join room" , r);
     const room = rooms[r.id];
     joinRoom(socket, room);
     
@@ -466,7 +486,7 @@ var res = [];
 	sockets.push(socket)
 
 	socket.on('click', function(data) {
-		console.log('clicked == ' + data.index );
+		console.log('clicked   == ' + data.index + (data.turn == 0 ? "White" : "Black") );
 		sockets.map( (s) => {
 			if(socket !== s)
 			{
