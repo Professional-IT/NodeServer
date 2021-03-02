@@ -378,6 +378,28 @@ gameSocket = io.on('connection', function(socket){
     // have the socket join the room they've just created.
    // joinRoom(socket, room);
     socket.emit('createdRoom', room);
+
+var res = [];
+  sockets.map( (s) => {
+    
+      if(socket !== s)
+      {
+          for(var room in rooms)
+              {
+                var element = {};
+                element.id = room.id;
+                element.name = room.name
+                res.push(element); 
+              }
+
+                console.log(res);
+                s.emit('show room', {rooms: res});
+      }
+    });
+
+
+    
+
   });
 
 
